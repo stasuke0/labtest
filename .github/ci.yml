@@ -1,0 +1,52 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  security-events: write
+  contents: read
+
+jobs:
+  security-and-testing:
+    runs-on: ubuntu-latest
+    
+    # This tells GitHub to run all scripts inside your Q4 folder!
+    defaults:
+      run:
+        working-directory: ./Q4
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Dependency Check
+        run: npm audit --audit-level=moderate || true 
+
+      - name: Run ESLint Security Scan
+        run: npx eslint . --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif
+        continue-on-error: true
+
+      - name: Upload SARIF report
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          # Updated path so GitHub knows where to find the scan results
+          sarif_file: Q4/eslint-results.sarif
+
+      - name: Spin up Infrastructure (Integration)
+        run: docker-compose up -d
+
+      - name: Wait for Services to Boot
+        run: sleep 10
+
+      - name: Run UI Testing over HTTP
+        run: npm test

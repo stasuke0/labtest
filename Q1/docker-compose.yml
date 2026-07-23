@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  web-server:
+    image: grafana/grafana:latest
+    user: "root"
+    
+    # Binds local port 443 (HTTPS) strictly to 127.0.0.1, routing to container port 3000
+    ports:
+      - "127.0.0.1:443:3000" 
+      
+    environment:
+      # 1. Custom Username and Password
+      - GF_SECURITY_ADMIN_USER=admin  
+      - GF_SECURITY_ADMIN_PASSWORD=2400689@SIT.singaporetech.edu.sg
+      
+      # 2. Tell the server to use HTTPS and point to the certificates
+      - GF_SERVER_PROTOCOL=https
+      - GF_SERVER_CERT_FILE=/etc/grafana/certs/server.crt
+      - GF_SERVER_CERT_KEY=/etc/grafana/certs/server.key
+      
+    volumes:
+      # Mounts your local 'certs' folder into the container as Read-Only (ro)
+      - ./certs:/etc/grafana/certs:ro

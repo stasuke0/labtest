@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  git-server:
+    image: gitea/gitea:latest
+    
+    ports:
+      # Web UI accessible on localhost:3001
+      - "127.0.0.1:3001:3000" 
+      # SSH port for pushing/pulling code securely
+      - "127.0.0.1:2222:22"   
+      
+    volumes:
+      # Saves your repositories locally so they survive a restart
+      - ./git-data:/data

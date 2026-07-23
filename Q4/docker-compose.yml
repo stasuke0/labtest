@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  web:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=searchdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      
+  sonarqube:
+    image: sonarqube:community
+    ports:
+      - "127.0.0.1:9000:9000"
+    environment:
+      # The default username is 'admin', this sets your custom password
+      - SONAR_ADMIN_PASSWORD=2400689@SIT.singaporetec.edu.sg
