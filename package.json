@@ -1,8 +1,19 @@
 {
   "name": "security-app",
+  "version": "1.0.0",
   "main": "server.js",
+  "scripts": {
+    "test": "mocha tests/ui.test.js"
+  },
   "dependencies": {
     "express": "^4.18.2",
     "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "eslint-plugin-security": "^2.1.0",
+    "@microsoft/eslint-formatter-sarif": "^3.0.0",
+    "mocha": "^10.2.0",
+    "selenium-webdriver": "^4.15.0"
   }
 }

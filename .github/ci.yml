@@ -4,6 +4,11 @@ on:
   push:
     branches: [ "main" ]
 
+# Crucial permission for uploading ESLint results to the GitHub Security tab
+permissions:
+  security-events: write
+  contents: read
+
 jobs:
   security-and-testing:
     runs-on: ubuntu-latest
@@ -21,17 +26,24 @@ jobs:
         run: npm install
 
       - name: Dependency Check
-        # Uses standard npm audit to check for vulnerable packages
+        # Scans your package.json for vulnerable packages
         run: npm audit --audit-level=moderate || true 
 
+      - name: Run ESLint Security Scan
+        run: npx eslint . --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif
+        continue-on-error: true
+
+      - name: Upload SARIF report
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: eslint-results.sarif
+
       - name: Spin up Infrastructure (Integration)
-        # Starts your Postgres DB and Node App in the background
+        # Starts your Postgres DB, Node App, and SonarQube container
         run: docker-compose up -d
 
       - name: Wait for Services to Boot
-        # Pauses the pipeline for 10 seconds to ensure the database and web app are fully ready
         run: sleep 10
 
       - name: Run UI Testing over HTTP
-        # Executes the Mocha/Selenium test against localhost:8080
         run: npm test
